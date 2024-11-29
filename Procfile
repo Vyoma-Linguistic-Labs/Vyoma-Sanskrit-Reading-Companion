@@ -1,1 +1,1 @@
-web: gunicorn -b :$PORT vyomasrc:sanskritReader
+web: gunicorn -b :$PORT vyomasrc:app
