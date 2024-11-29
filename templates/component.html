@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ display_name }} - {{ essay_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Shobhika&display=swap" rel="stylesheet">
+	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+<body>
+
+<!-- Sticky Bar -->
+<div class="sticky-bar">
+    <!-- Home Button Icon and Menu Icon in the same container -->
+        <div class="home-menu-container">
+            <div class="home-icon">
+                <a href="/" title="Home">🏠</a>
+            </div>
+
+            <!-- Menu Icon next to Home Icon -->
+            <div id="menu-button" class="menu-icon" onclick="openNav()">&#9776; Menu</div>
+        </div>
+        
+        <!-- Side Drawer Menu -->
+        <div id="side-drawer" class="side-drawer">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <ul id="menu-list"></ul> <!-- Menu populated from menu.csv -->
+        </div>
+
+    <!-- Global Audio Controls in the sticky bar -->
+    <div class="audio-controls">
+        <button id="global-play-pause">Play Audio</button>
+        <button id="global-stop">Stop Audio</button>
+    </div>
+
+    <!-- Language Selection Checkboxes in the sticky bar -->
+    <div class="language-selection">
+        <span class="translation-label">Translation:</span>
+        <div id="language-checkboxes"></div>
+    </div>
+</div>
+
+<!-- Main wrapper for Flexbox layout -->
+<div class="wrapper">
+    <!-- Main content container -->
+    <div class="main-content">
+        <div class="content-container">
+        
+				<h2>{{ display_name }}</h2>
+            <!-- Heading updated to handle highlighting -->
+            <h1 id="heading">{{ essay_name }}</h1>
+
+            <!-- Sanskrit Lines with Translations and Word Explanations -->
+            <div id="content">
+                {% for line in essay_content %}
+                <div>
+                    <!-- Sanskrit Line with Play Icon and Word Explanations -->
+                    <p class="sanskrit-line" id="sanskrit-line-{{ loop.index0 }}">
+                        <span class="play-line" data-index="{{ loop.index0 + 1 }}">▶️</span> <!-- Adjusted index to start from 1 -->
+                        {% for word in line['Sanskrit Line'].split() %}
+                            {% if word in word_explanations %}
+                                <span class="clickable-word" style="color:blue;" onclick="showExplanation('{{ word }}', '{{ word_explanations[word] }}')">{{ word }}</span>
+                            {% else %}
+                                {{ word }}
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                    <!-- Dynamic Translations - hidden by default -->
+                    {% for key in line.keys() %}
+                        {% if key != 'Sanskrit Line' %}
+                        <p class="translation" data-language="{{ key }}" id="translation-{{ loop.index0 }}-{{ key }}" style="display:none;">
+                            {{ line[key] }}
+                        </p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Modal for Word Explanation -->
+            <div id="word-explanation-modal" class="modal">
+                <div class="modal-content">
+                    <span id="close-modal" class="close">&times;</span>
+                    <h3>Word Explanation</h3>
+                    <p id="word-explanation-content"></p>
+                </div>
+            </div>
+			
+
+
+			<!-- Quiz buttons with data-quiz-name attribute -->
+{% if 'q1' in quizzes %}
+    <button class="quiz-button" data-quiz-file="{{ component_name }}_q1.csv" data-quiz-name="अभ्यासः - अवबोधप्रश्नाः">अभ्यासः - अवबोधप्रश्नाः</button>
+{% endif %}
+{% if 'q2' in quizzes %}
+    <button class="quiz-button" data-quiz-file="{{ component_name }}_q2.csv" data-quiz-name="अभ्यासः - पदानाम् / पदपुञ्जानाम् अर्थः">अभ्यासः - पदानाम् / पदपुञ्जानाम् अर्थः</button>
+{% endif %}
+{% if 'q3' in quizzes %}
+    <button class="quiz-button" data-quiz-file="{{ component_name }}_q3.csv" data-quiz-name="अभ्यासः - व्याकरणम्">अभ्यासः - व्याकरणम्</button>
+{% endif %}
+
+
+
+<!-- Quiz Modal -->
+<div id="quiz-modal" class="quiz-modal">
+    <div class="quiz-modal-content">
+        <span id="close-quiz-modal" class="close">&times;</span>
+        <h3 id="quiz-heading"></h3> <!-- Heading will be dynamically set here -->
+        <div id="quiz-container"></div>
+        <div>
+    <button id="submit-quiz-button" onclick="submitQuiz()">Submit Quiz</button>
+    <button id="attempt-again-button" onclick="attemptAgain()">Attempt Again</button>
+</div>
+
+
+        <div id="quiz-result"></div>
+        <div id="quiz-custom-message"></div>
+    </div>
+</div>
+
+
+            <!-- Scroll to Top Button -->
+            <button id="scroll-top-btn" class="scroll-top-btn">Top</button>
+
+        </div>
+    </div>
+</div>
+
+<!-- Help Button -->
+<div class="help-btn" onclick="openHelpPanel()">
+    <i class="fas fa-question-circle"></i> <!-- Question mark icon -->
+</div>
+
+<!-- Help Panel -->
+<div id="help-panel" class="help-panel">
+    <span class="closebtn" onclick="closeHelpPanel()">&times;</span>
+    <h2>Help</h2>
+    <ol><li>Click on <span style="color:#5d3a9b"><b>Play audio</b></span> button to listen to the text line by line. The current line is highlighted in maroon.</li>
+		<li>Click on the <span style="color:#5d3a9b"><b>Play icon ▶️</b></span> at the beginning of any line to jump to the audio of that line.</li>
+		<li>You can <span style="color:#5d3a9b"><b>Pause and Continue</b></span> the audio, or <span style="color:#5d3a9b"><b>Stop</b></span> and start playing from beginning, by using buttons in the top bar.</li>
+		<li>List of languages in which translation is available is given as checkboxes. <span style="color:#5d3a9b"><b>Check the language(s)</b></span> in which you want to view the translation.</li>
+		<li>In the text, you can <span style="color:#5d3a9b"><b>click on any word in</b></span> <span style="color:blue"><b>Blue colour</b></span> to view some grammatical explanation related to the word.</li>
+		<li>After studying, you can practice using <span style="color:#5d3a9b"><b>Quiz buttons</b></span> at the bottom of the text.</li>
+		<li>If you spot any errors in the texts or translations, please drop an email with details (Text name, Title of the page, line number) to <span style="color:#5d3a9b"><b>sowmya.krishnapur @vyomalabs.in</b></span>.</li>
+	</ol>
+</div>
+
+<!-- Footer with the logo moved here -->
+<footer class="footer">
+        <img src="/static/logowhite.png" alt="Vyoma Logo" class="footer-logo">
+        Powered by Vyoma Linguistic Labs Foundation | 
+        <a href="https://www.sanskritfromhome.org" target="_blank" style="color: white;">&nbspwww.sanskritfromhome.org&nbsp</a> | 
+        <a href="https://www.vyoma.org" target="_blank" style="color: white;">&nbspwww.vyoma.org&nbsp</a> | 
+        <a href="https://www.digitalsanskritguru.com" target="_blank" style="color: white;">&nbspwww.digitalsanskritguru.com&nbsp</a>
+</footer>
+
+<!-- JavaScript to handle checkbox toggling, audio, autoscroll, and heading audio -->
+<script>
+    let currentPlayingIndex = 0;
+    let isPlaying = false;
+    let currentAudio = null;
+    let pausedTime = 0; // To store the paused time
+
+    // Function to toggle translations
+    function toggleTranslation(language, show) {
+        const elements = document.querySelectorAll(`[data-language="${language}"]`); // Corrected selector
+        elements.forEach(el => {
+            el.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    // Populate checkboxes based on column names (languages)
+    const languages = {{ languages | tojson }};
+    const checkboxContainer = document.getElementById('language-checkboxes');
+    languages.forEach(language => {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = language;
+        checkbox.value = language;
+        checkbox.addEventListener('change', function() {
+            toggleTranslation(language, this.checked);
+        });
+
+        const label = document.createElement('label');
+        label.htmlFor = language;
+        label.textContent = language;
+
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(label);
+    });
+
+    // Audio logic
+    const audioFiles = {{ audio_files | tojson }};
+    const globalPlayPauseButton = document.getElementById('global-play-pause');
+    const globalStopButton = document.getElementById('global-stop');
+    
+	//For scrolling down with audio
+	function scrollToLine(index) {
+    const currentLine = document.getElementById(`sanskrit-line-${index}`);
+    if (currentLine) {
+        currentLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+    function playLine(index, resume = false) {
+    if (currentAudio) {
+        currentAudio.pause();
+        if (!resume) {
+            currentAudio.currentTime = 0;
+        }
+    }
+    currentAudio = new Audio(audioFiles[index]);
+
+    if (resume && pausedTime > 0) {
+        currentAudio.currentTime = pausedTime;
+    }
+
+    currentAudio.play();
+    currentPlayingIndex = index;
+    isPlaying = true;
+    pausedTime = 0;
+
+    // Highlight the heading if it's the first line (line-00.mp3)
+    if (index === 0) {
+        highlightHeading(true);
+        scrollToLine(0); // Scroll to heading
+    } else {
+        highlightLine(index - 1);
+        highlightHeading(false);
+        scrollToLine(index - 1); // Scroll to the current line
+    }
+
+    currentAudio.onended = () => {
+        if (currentPlayingIndex + 1 < audioFiles.length) {
+            currentPlayingIndex++;
+            playLine(currentPlayingIndex);
+        } else {
+            isPlaying = false;
+            globalPlayPauseButton.textContent = 'Play Audio';
+            highlightHeading(false);
+            highlightLine(-1);
+        }
+    };
+}
+
+
+    // Function to highlight heading
+    function highlightHeading(isHighlighted) {
+        const heading = document.getElementById('heading');
+        if (isHighlighted) {
+            heading.style.color = 'maroon';
+        } else {
+            heading.style.color = '';
+        }
+    }
+
+    // Highlight the current playing line
+    function highlightLine(index) {
+        const lines = document.querySelectorAll('.sanskrit-line');
+        lines.forEach((line, i) => {
+            line.classList.remove('highlight');
+            if (i === index) {
+                line.classList.add('highlight');
+            }
+        });
+    }
+
+    // Global play/pause button
+    globalPlayPauseButton.addEventListener('click', function () {
+        if (isPlaying) {
+            currentAudio.pause();
+            pausedTime = currentAudio.currentTime;
+            isPlaying = false;
+            this.textContent = 'Continue Playing';
+        } else {
+            playLine(currentPlayingIndex, true);
+            isPlaying = true;
+            this.textContent = 'Pause Playing';
+        }
+    });
+
+    // Global stop button
+    globalStopButton.addEventListener('click', function () {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+        currentPlayingIndex = 0;
+        pausedTime = 0;
+        isPlaying = false;
+        globalPlayPauseButton.textContent = 'Play Audio';
+        highlightHeading(false);
+        highlightLine(-1);
+    });
+
+    // Line-specific play button
+    const playIcons = document.querySelectorAll('.play-line');
+    playIcons.forEach((icon) => {
+        icon.addEventListener('click', function () {
+            const index = parseInt(this.getAttribute('data-index'), 10);
+            currentPlayingIndex = index;
+            pausedTime = 0;
+            playLine(index);
+            isPlaying = true;
+            globalPlayPauseButton.textContent = 'Pause Playing';
+        });
+    });
+
+    // Scroll to Top Button
+    const scrollTopBtn = document.getElementById('scroll-top-btn');
+    scrollTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Show the scroll-to-top button when user scrolls down
+    window.onscroll = function () {
+        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+            scrollTopBtn.style.display = 'block';
+        } else {
+            scrollTopBtn.style.display = 'none';
+        }
+    };
+
+    function showExplanation(word, explanation) {
+        document.getElementById('word-explanation-content').innerHTML = explanation;
+        document.getElementById('word-explanation-modal').style.display = 'block';
+    }
+
+    // Close the modal
+    document.getElementById('close-modal').addEventListener('click', function () {
+        document.getElementById('word-explanation-modal').style.display = 'none';
+    });
+	
+	
+</script>
+
+<!-- JavaScript for Help Menu -->
+<script>
+function openHelpPanel() {
+    document.getElementById('help-panel').classList.add('open');
+}
+
+function closeHelpPanel() {
+    document.getElementById('help-panel').classList.remove('open');
+}
+
+</script>
+
+<!-- JavaScript for Side Drawer Menu -->
+<script>
+    // Function to open the side drawer
+    function openNav() {
+        document.getElementById('side-drawer').style.width = "250px";
+        document.addEventListener('click', closeOnClickOutside); // Add the event listener when the menu opens
+    }
+
+    // Function to close the side drawer
+    function closeNav() {
+        document.getElementById('side-drawer').style.width = "0";
+        document.removeEventListener('click', closeOnClickOutside); // Remove the event listener when the menu closes
+    }
+
+    // Close the menu when clicking outside of it
+    function closeOnClickOutside(event) {
+        const drawer = document.getElementById('side-drawer');
+        const menuButton = document.getElementById('menu-button'); // Ensure clicking the button itself doesn't close the menu
+        if (!drawer.contains(event.target) && !menuButton.contains(event.target)) {
+            closeNav(); // Close the drawer if clicked outside
+        }
+    }
+
+    // Fetch menu.csv data dynamically from the server
+    const menuItems = {{ menu_items | tojson }};
+    const menuList = document.getElementById('menu-list');
+
+    // Populate the side drawer menu
+    menuItems.forEach(item => {
+        const mainMenuItem = document.createElement('li');
+        mainMenuItem.textContent = item['Main Menu'];
+
+        const subMenuList = document.createElement('ul'); // Sub-menu for second level
+
+        const subMenuArray = item['Sub Menu'].split(';');
+        const subMenuLinksArray = item['Sub Menu Link'].split(';');
+
+        subMenuArray.forEach((subItem, index) => {
+            const subMenuItem = document.createElement('li');
+            const subMenuLink = document.createElement('a');
+            subMenuLink.href = subMenuLinksArray[index]; // Link to the submenu
+            subMenuLink.textContent = subItem;
+
+            subMenuItem.appendChild(subMenuLink);
+            subMenuList.appendChild(subMenuItem);
+        });
+
+        if (subMenuArray.length > 0) {
+            mainMenuItem.appendChild(subMenuList); // Add sub-menu to main menu item only if sub-menu exists
+        }
+        menuList.appendChild(mainMenuItem); // Add main menu item to the list
+    });
+
+    // Sub-menu visibility on hover and click/touch
+    const allMainMenuItems = document.querySelectorAll("#menu-list > li");
+    allMainMenuItems.forEach(mainMenu => {
+        const subMenu = mainMenu.querySelector("ul"); // Check for submenu
+        if (subMenu) {
+            subMenu.style.display = "none"; // Ensure it's hidden initially
+
+            // Hover-based visibility for desktop
+            mainMenu.onmouseover = function() {
+                subMenu.style.display = "block";
+            };
+            mainMenu.onmouseout = function() {
+                subMenu.style.display = "none";
+            };
+
+            // Click/touch support for mobile/touch devices
+            mainMenu.addEventListener('touchstart', function(event) {
+                event.preventDefault(); // Prevent default scrolling behavior
+                // Toggle the visibility of the sub-menu
+                if (subMenu.style.display === "block") {
+                    subMenu.style.display = "none";
+                } else {
+                    subMenu.style.display = "block";
+                }
+            });
+
+            mainMenu.addEventListener('click', function(event) {
+                // Close other open sub-menus before opening the clicked one
+                allMainMenuItems.forEach(menu => {
+                    if (menu !== mainMenu) {
+                        const otherSubMenu = menu.querySelector("ul");
+                        if (otherSubMenu) {
+                            otherSubMenu.style.display = "none";
+                        }
+                    }
+                });
+
+                // Toggle the visibility of the sub-menu
+                if (subMenu.style.display === "block") {
+                    subMenu.style.display = "none";
+                } else {
+                    subMenu.style.display = "block";
+                }
+            });
+        }
+    });
+</script>
+
+	
+		<script>
+    // Adjust the padding of the main content based on the height of the sticky bar
+    function adjustContentPadding() {
+        const stickyBar = document.querySelector('.sticky-bar');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (stickyBar && mainContent) {
+            const stickyHeight = stickyBar.offsetHeight;
+            mainContent.style.paddingTop = `${stickyHeight + 20}px`; // Add some extra space
+        }
+    }
+
+    // Call the function when the window is resized or on initial load
+    window.addEventListener('resize', adjustContentPadding);
+    window.addEventListener('load', adjustContentPadding);
+</script>
+
+<!-- JavaScript for Quiz Logic -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script> <!-- Ensure PapaParse is included -->
+<script>
+    // Assign Python variables to JavaScript
+    const currentText = "{{ text_name }}";
+    const currentComponent = "{{ component_name }}";
+
+    let quizData = [];
+
+    // Fetch and display the quiz questions from the CSV
+    function loadQuiz(quizFile, quizName) {
+        console.log("Loading quiz:", quizFile);
+
+        // Correct file path construction
+        const correctFilePath = `/csv/{{ text_name }}/components/{{ component_name }}/${quizFile}`;
+        console.log("Fetching quiz from:", correctFilePath);
+
+        // Clear previous quiz result and custom message
+        document.getElementById('quiz-result').innerHTML = '';
+        document.getElementById('quiz-custom-message').innerHTML = '';
+
+        fetch(correctFilePath)
+        .then(response => response.text())
+        .then(data => {
+            console.log("Quiz data loaded:", data);
+            quizData = Papa.parse(data, {
+                header: true,
+                skipEmptyLines: true
+            }).data;
+
+            // Display quiz questions
+            displayQuiz(quizData, quizName);  // Pass the quizName to display in the modal heading
+        })
+        .catch(error => {
+            console.error('Error loading quiz:', error);
+        });
+    }
+
+    // Shuffle options (Fisher-Yates shuffle)
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // Display the quiz in the modal
+    function displayQuiz(quizData, quizName) {
+        console.log("Displaying quiz:", quizData);
+        const quizContainer = document.getElementById('quiz-container');
+        quizContainer.innerHTML = ''; // Clear existing content
+        let questionHTML = '';
+
+        quizData.forEach((question, index) => {
+            // Create an array of options to shuffle
+            let options = [
+                { value: 'A', text: question.A },
+                { value: 'B', text: question.B },
+                { value: 'C', text: question.C },
+                { value: 'D', text: question.D }
+            ];
+            // Shuffle the options
+            shuffle(options);
+
+            // Generate HTML without A, B, C, D labels
+            questionHTML += `
+                <div class="quiz-question">
+                    <h4>Q${index + 1}: ${question.Question}</h4>
+                    <div>
+                        <input type="radio" id="q${index}_${options[0].value}" name="q${index}" value="${options[0].value}">
+                        <label for="q${index}_${options[0].value}">${options[0].text}</label><br>
+                        
+                        <input type="radio" id="q${index}_${options[1].value}" name="q${index}" value="${options[1].value}">
+                        <label for="q${index}_${options[1].value}">${options[1].text}</label><br>
+                        
+                        <input type="radio" id="q${index}_${options[2].value}" name="q${index}" value="${options[2].value}">
+                        <label for="q${index}_${options[2].value}">${options[2].text}</label><br>
+                        
+                        <input type="radio" id="q${index}_${options[3].value}" name="q${index}" value="${options[3].value}">
+                        <label for="q${index}_${options[3].value}">${options[3].text}</label><br>
+                    </div>
+                </div>
+            `;
+        });
+
+        quizContainer.innerHTML = questionHTML;
+
+        // Now open the modal after loading the quiz
+        openQuizModal(quizName);
+    }
+
+    // Setup quiz buttons to open the modal and load the quiz
+    function setupQuizButtons() {
+        const quizButtons = document.querySelectorAll('.quiz-button');
+        
+        quizButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const quizFile = this.dataset.quizFile; // Get the quiz file from the button's data attribute
+                const quizName = this.dataset.quizName;  // Get the quiz name from the button's data-quiz-name attribute
+                
+                console.log("Button clicked: Loading quiz file", quizFile);
+                console.log("Quiz Name: ", quizName);  // Log quiz name for debugging
+
+                loadQuiz(quizFile, quizName);  // Load the quiz and pass the quiz name
+            });
+        });
+    }
+
+    // Function to open the quiz modal
+    function openQuizModal(quizName) {
+        // Set the modal heading using the essay name and quiz name
+        const quizHeading = document.getElementById('quiz-heading');
+        
+        // Ensure the essay name and quiz name are correctly displayed
+        quizHeading.innerHTML = `{{ essay_name }} - ${quizName}`;
+        
+        document.getElementById('quiz-modal').style.display = 'block'; // Show the modal
+    }
+
+    // Function to close the quiz modal
+    function closeQuizModal() {
+        document.getElementById('quiz-modal').style.display = 'none';
+
+        // Re-enable the submit button and radio buttons when the modal is closed
+        const submitButton = document.getElementById('submit-quiz-button');
+        submitButton.disabled = false;
+
+        const quizQuestions = document.querySelectorAll('.quiz-question');
+        quizQuestions.forEach((question) => {
+            const radioButtons = question.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(button => {
+                button.disabled = false; // Re-enable radio buttons
+            });
+        });
+    }
+
+    // Close the quiz modal when clicking on the close button
+    document.getElementById('close-quiz-modal').onclick = function() {
+        closeQuizModal();
+    }
+
+    // Close the modal when clicking outside the modal content
+    window.onclick = function(event) {
+        const modal = document.getElementById('quiz-modal');
+        if (event.target === modal) {
+            closeQuizModal();
+        }
+    }
+
+    function submitQuiz() {
+        const quizQuestions = document.querySelectorAll('.quiz-question');
+        let score = 0;
+        let totalQuestions = quizQuestions.length;
+
+        // Iterate through each question
+        quizQuestions.forEach((question, index) => {
+            const selectedAnswer = document.querySelector(`input[name="q${index}"]:checked`);
+            const correctAnswer = quizData[index].Answer.trim(); // Use trimmed correct answer for comparison
+            const answerContainer = question.querySelector('div'); // Container for the answer options
+
+            // Clear any previous feedback
+            answerContainer.querySelectorAll('label').forEach(label => {
+                label.style.color = ''; // Reset label color
+                label.style.fontWeight = ''; // Reset font weight
+            });
+
+            // Option labels for feedback
+            const optionLabels = {
+                A: quizData[index].A,
+                B: quizData[index].B,
+                C: quizData[index].C,
+                D: quizData[index].D
+            };
+
+            // Check if the user selected an answer
+            if (selectedAnswer) {
+                const selectedAnswerValue = selectedAnswer.value;
+                console.log(`Question ${index + 1}: Selected answer = ${selectedAnswerValue}, Correct answer = ${correctAnswer}`);
+
+                // Compare the selected answer with the correct answer
+                if (selectedAnswerValue === correctAnswer) {
+                    score += 1; // Increment score if the answer matches
+
+                    // Highlight the correct answer in green
+                    const correctLabel = question.querySelector(`input[value="${correctAnswer}"]`).nextElementSibling;
+                    correctLabel.style.color = 'green';
+                    correctLabel.style.fontWeight = 'bold';
+
+                    // Show a "Correct" message
+                    const feedbackMessage = document.createElement('p');
+                    feedbackMessage.style.color = 'green';
+                    feedbackMessage.textContent = 'साधु! समीचीनम् उत्तरम् ।';
+                    question.appendChild(feedbackMessage);
+
+                } else {
+                    // Highlight the wrong answer in red
+                    const wrongLabel = selectedAnswer.nextElementSibling;
+                    wrongLabel.style.color = 'red';
+                    wrongLabel.style.fontWeight = 'bold';
+
+                    // Highlight the correct answer in green
+                    const correctLabel = question.querySelector(`input[value="${correctAnswer}"]`).nextElementSibling;
+                    correctLabel.style.color = 'green';
+                    correctLabel.style.fontWeight = 'bold';
+
+                    // Show an "Incorrect" message with the correct answer label
+                    const feedbackMessage = document.createElement('p');
+                    feedbackMessage.style.color = 'red';
+                    feedbackMessage.textContent = `असमीचीनम् । साधूत्तरमस्ति -  ${optionLabels[correctAnswer]}`;
+                    question.appendChild(feedbackMessage);
+                }
+            } else {
+                console.log(`Question ${index + 1}: No answer selected`);
+
+               
+                // Show a message for unanswered questions
+                const feedbackMessage = document.createElement('p');
+                feedbackMessage.style.color = 'orange';
+                feedbackMessage.textContent = `उत्तरं न दत्तम् । साधूत्तरमस्ति -  ${optionLabels[correctAnswer]}`;
+                question.appendChild(feedbackMessage);
+
+                // Highlight the correct answer in green
+                const correctLabel = question.querySelector(`input[value="${correctAnswer}"]`).nextElementSibling;
+                correctLabel.style.color = 'green';
+                correctLabel.style.fontWeight = 'bold';
+            }
+        });
+
+        // Display the overall score
+        const resultContainer = document.getElementById('quiz-result');
+        resultContainer.innerHTML = `प्राप्ताः अङ्काः - ${score} out of ${totalQuestions}`;
+
+        // Display custom message based on score
+        const customMessageContainer = document.getElementById('quiz-custom-message');
+        if (score === totalQuestions) {
+            customMessageContainer.innerHTML = "अत्युत्तमम्! सर्वाणि उत्तराणि समीचीनानि ।";
+        } else if (score > totalQuestions / 2) {
+            customMessageContainer.innerHTML = "उत्तमः प्रयत्नः ।  ";
+        } else {
+            customMessageContainer.innerHTML = "सावधानं पुनः पठित्वा प्रयत्नं करोतु । ";
+        }
+
+        // Disable all radio buttons after quiz submission
+        quizQuestions.forEach((question) => {
+            const radioButtons = question.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(button => {
+                button.disabled = true; // Disable each radio button
+            });
+        });
+
+        // Disable the submit button
+        const submitButton = document.getElementById('submit-quiz-button');
+        submitButton.disabled = true;
+    }
+
+    // Call this function after your page content is loaded
+    window.addEventListener('DOMContentLoaded', function() {
+        setupQuizButtons();  // Ensure the buttons are ready when the page loads
+    });
+</script>
+
+
+
+
+
+
+
+
+
+</body>
+</html>

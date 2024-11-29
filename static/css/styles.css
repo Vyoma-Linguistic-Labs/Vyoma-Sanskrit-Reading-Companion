@@ -1,0 +1,729 @@
+/* Global reset for box-sizing to prevent padding issues */
+* {
+    box-sizing: border-box;
+}
+
+/* General body styles */
+body {
+    font-family: 'Shobhika', serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f0f8; /* Light purple background */
+    color: #333;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+h1, h2 {
+    text-align: center;
+    color: #5d3a9b; /* Dark purple */
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #000000;
+}
+
+h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+/* Sticky bar at the top of the page */
+.sticky-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Ensures it spans the full width */
+    z-index: 1000;
+    background-color: #5d3a9b; /* Dark purple */
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: white;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+/* Ensure that elements inside sticky-bar do not cause overflow */
+.sticky-bar-heading h1 {
+    white-space: nowrap; /* Prevent text from breaking but overflowing */
+    overflow: hidden; /* Hide any overflowing content */
+    text-overflow: ellipsis; /* Show ellipsis (...) for cut-off text */
+}
+
+/* Main wrapper */
+.wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 100vw; /* Ensures no element exceeds viewport width */
+}
+
+.main-content {
+    flex: 1;
+    padding-top: 0px;
+    text-align: center;
+    padding-bottom: 100px;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 0px; /* Increase padding-top for smaller screens if the sticky bar is taller */
+        padding-bottom: 80px; /* Adjust bottom padding for consistency */
+    }
+}
+
+@media (max-width: 600px) {
+    .main-content {
+        padding-top: 0px; /* Further increase padding-top for mobile screens */
+        padding-bottom: 60px; /* Adjust bottom padding for smaller screens */
+    }
+}
+
+/* Responsive design for home page buttons */
+.text-button {
+    background-color: #7b4397;
+    color: white;
+    padding: 15px 30px;
+    margin: 10px 0;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 20px;
+    width: 80%; /* Fluid width for responsiveness */
+    max-width: 400px; /* Maximum width for larger screens */
+    text-align: center;
+}
+
+/* Footer styles */
+.footer {
+    background-color: #5d3a9b; /* Dark purple */
+    color: white;
+    text-align: center;
+    padding: 15px;
+    width: 100%; /* Ensures footer spans full width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    overflow-x: hidden; /* Prevent horizontal overflow in footer */
+}
+
+/* Ensure footer content fits properly */
+.footer img {
+    width: 50px;
+    margin-right: 10px;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .sticky-bar {
+        flex-direction: column; /* Stack elements vertically on smaller screens */
+        align-items: center;
+        width: 100%; /* Ensure it adapts to screen size */
+    }
+
+    .footer {
+        flex-direction: column; /* Stack footer content on smaller screens */
+        padding: 10px;
+    }
+
+    .footer img {
+        width: 40px; /* Smaller image on tablets */
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer {
+        flex-direction: column; /* Stack footer content for mobile */
+        padding: 10px;
+    }
+
+    .footer img {
+        width: 30px; /* Smaller image for mobile */
+    }
+
+    .sticky-bar-heading h1 {
+        font-size: 20px; /* Adjust heading size on mobile */
+        overflow: hidden;
+        text-overflow: ellipsis; /* Handle long text overflow */
+        white-space: nowrap;
+    }
+
+    /* Ensure no content overflows horizontally on mobile */
+    .main-content {
+        padding-top: 80px; /* Reduce padding */
+        padding-bottom: 80px;
+        max-width: 100vw; /* Prevent any content overflow */
+        overflow-x: hidden; /* Hide any unwanted horizontal scroll */
+    }
+}
+
+.side-drawer {
+    height: auto; /* Set height to auto to adjust to content */
+    width: 0; /* Initial width 0 */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    top: 60px;
+    left: 0;
+    background-color: #5d3a9b; /* Dark background color */
+    overflow-x: hidden; /* Disable horizontal scroll */
+    transition: 0.5s; /* 0.5 second transition to open/close */
+    padding-top: 60px; /* Padding from the top */
+	padding-bottom: 40px; /* Padding from the top */
+}
+
+.side-drawer a {
+    padding: 8px 8px 8px 16px;
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    display: block;
+    transition: 0.3s;
+}
+
+.side-drawer a:hover {
+    color: #ffa500;
+}
+
+/* Remove bullets from list items */
+.side-drawer ul {
+    list-style-type: none; /* This removes the bullets */
+    padding-left: 15px; /* Removes default padding */
+    margin: 0;
+}
+
+.side-drawer ul li {
+    font-size: 18px; 
+    font-weight: bold;
+	color: yellow;
+}
+
+.side-drawer .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 16px;
+    margin-left: 50px;
+}
+
+#menu-list ul {
+    display: none;
+    padding-left: 15px;
+}
+
+
+/* Styling sub-menu items */
+#menu-list ul li {
+    list-style-type: none;
+    padding: 5px 0;
+}
+
+/* Open state for the side drawer */
+.side-drawer.open {
+    width: 250px;
+    height: auto; /* Expand to fit content dynamically */
+}
+
+/* Ensure that if content exceeds the viewport height, scrolling is enabled */
+.side-drawer {
+    overflow-y: auto;
+    max-height: 100vh; /* Maximum height of the side drawer is the viewport height */
+}
+
+
+
+
+
+/* Home page styles */
+.text-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Styling for buttons */
+.text-button {
+    background-color: #7b4397; /* Medium purple */
+    color: white;
+    padding: 15px 30px;
+    margin: 10px 0;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 20px;
+    width: 400px;
+    text-align: center;
+}
+
+.text-button:hover {
+    background-color: #5d3a9b; /* Dark purple */
+    color: white;
+}
+
+.subtitle {
+    font-size: 14px;
+    display: block;
+    margin-top: 5px;
+    color: #e0e0e0;
+}
+
+/* Components page */
+.content-container {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+}
+
+/* Styling for the list of components */
+.essay-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.essay-list li {
+    margin-bottom: 15px;
+}
+
+.essay-list li a {
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #7b4397; /* Medium purple */
+}
+
+.essay-list li a:hover {
+    color: #5d3a9b; /* Dark purple */
+}
+
+/* Component data page */
+.sticky-bar .audio-controls {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* Language selection section responsive fix */
+.sticky-bar .language-selection {
+    flex: 2;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping of the translation buttons */
+    gap: 10px; /* Add some space between buttons */
+    max-width: 100%; /* Prevent overflow */
+}
+
+
+/* Translation label and checkboxes adjustment */
+.language-selection div {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    gap: 10px;
+}
+
+.translation-label {
+    margin-right: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.language-selection input[type="checkbox"] {
+    margin-right: 5px;
+    transform: scale(1.1);
+}
+
+.language-selection label {
+    font-size: 14px;
+    margin-right: 15px;
+}
+
+/* Audio button styles */
+.audio-controls button {
+    background-color: white;
+    border: 2px solid #5d3a9b; /* Dark purple */
+    color: #5d3a9b;
+    font-family: 'Shobhika', serif;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-right: 10px;
+    cursor: pointer;
+    max-width: 100%; /* Prevent button overflow */
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+.audio-controls button:hover {
+    background-color: #f0f4f8;
+    color: #8854d0; /* Medium purple */
+    border-color: #8854d0;
+}
+
+/* Responsive media query to handle small screens */
+@media (max-width: 600px) {
+    .sticky-bar .language-selection {
+        flex-direction: column; /* Stack the translation buttons vertically */
+        align-items: flex-start; /* Align to the left */
+        gap: 5px; /* Smaller gap on smaller screens */
+        max-width: 100vw; /* Prevent any overflow */
+    }
+
+    .language-selection label {
+        font-size: 12px; /* Reduce font size for smaller screens */
+    }
+
+    .audio-controls button {
+        font-size: 16px; /* Adjust button font size for smaller screens */
+        padding: 8px 15px; /* Reduce padding */
+        max-width: 100%; /* Ensure buttons do not overflow */
+    }
+}
+
+/* Sanskrit lines */
+.sanskrit-line {
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 10px;
+}
+
+.sanskrit-line.highlight {
+    color: #800000; /* Lighter purple */
+}
+
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999; /* Ensure modal is on top of everything, including sticky bar */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 80px; /* Add padding at the top to ensure it's not covered by the sticky bar */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto; /* Adjust for mobile */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Responsive width */
+    max-width: 600px; /* Maximum width for larger screens */
+    position: relative;
+    top: 50px; /* Ensure the modal is below the sticky bar */
+}
+
+@media (max-width: 600px) {
+    .modal {
+        padding-top: 100px; /* Adjust padding-top on small screens for larger sticky bars */
+    }
+
+    .modal-content {
+        width: 90%; /* Make modal content more responsive for small screens */
+        margin-top: 50px; /* Additional top margin to ensure better spacing */
+    }
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: black;
+    cursor: pointer;
+}
+
+
+
+/* Home and Menu icons */
+.home-menu-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.menu-icon {
+    font-size: 14px;
+    cursor: pointer;
+    color: white;
+}
+
+.home-icon {
+    font-size: 24px;
+    margin-left: 10px;
+    margin-right: 15px;
+}
+
+.home-icon a {
+    text-decoration: none;
+    color: white;
+}
+
+.home-icon a:hover {
+    color: #bb86fc; /* Light purple on hover */
+}
+
+/* Floating Help Button */
+.help-btn {
+    position: fixed; /* Stays fixed on screen even when scrolling */
+    bottom: 20px; /* Distance from the bottom of the viewport */
+    right: 20px; /* Distance from the right side of the viewport */
+	z-index: 110; /*Keep it above the scroll button */
+    background-color: #5d3a9b; /* Button background color */
+    color: white; /* Button text color */
+    border: none;
+    border-radius: 50%; /* Make the button circular */
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 9999; /* Ensures it's on top of other content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+/* Icon inside the button */
+.help-btn i {
+    font-size: 24px; /* Size of the question mark icon */
+}
+
+/* Hover effect for the button */
+.help-btn:hover {
+    background-color: #8854d0; /* Change background color on hover */
+}
+
+/* Help Panel Styles */
+.help-panel {
+    position: fixed; /* Stays fixed on screen */
+    right: 0;
+    top: 60px; /* Below the sticky bar */
+    width: 300px; /* Set a width */
+    height: calc(100% - 60px); /* Dynamic height, adjusting to the viewport minus the sticky bar */
+    background-color: #fff; /* White background */
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    overflow-y: auto; /* Allows scrolling if the content is too long */
+    z-index: 9998; /* Ensure it's just below the button */
+    transform: translateX(100%); /* Initially hidden off-screen */
+    transition: transform 0.3s ease; /* Smooth slide-in animation */
+    padding: 20px;
+}
+
+/* Open the panel when needed */
+.help-panel.open {
+    transform: translateX(0); /* Slide the panel into view */
+}
+
+/* Close button inside the panel */
+.closebtn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #5d3a9b;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .help-panel {
+        width: 100%; /* Full width on small devices */
+    }
+}
+
+/* Scroll-top button */
+.scroll-top-btn {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 100;
+    font-size: 18px;
+    border: none;
+    background-color: #8854d0; /* Medium purple */
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.scroll-top-btn:hover {
+    background-color: #6b47b5; /* Darker purple on hover */
+}
+
+/* Quiz Modal Styles */
+.quiz-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.7); /* Black background with opacity */
+}
+
+.quiz-modal-content {
+    background-color: #fff;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button.quiz-submit {
+    padding: 10px 20px;
+    background-color: #5d3a9b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button.quiz-submit:hover {
+    background-color: #7a56be;
+}
+
+.quiz-question {
+    margin-bottom: 20px;
+}
+
+.quiz-question ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.quiz-question li {
+    margin: 5px 0;
+}
+
+.quiz-button {
+    background-color: #5d3a9b;
+    color: white;
+    padding: 10px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.quiz-button:hover {
+    background-color: #7b4397;
+}
+
+#quiz-container {
+    margin-top: 20px;
+}
+
+#quiz-result {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#quiz-custom-message {
+    margin-top: 10px;
+    font-size: 16px;
+    color: green;
+}
+
+/* Customize quiz question appearance */
+.quiz-question h4 {
+    color: #311b92; /* Set your desired color for the questions */
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+	text-align: left;
+}
+
+/* Customize the quiz answer options */
+.quiz-question input[type="radio"] + label {
+    color: #333; /* Set color for the answer text */
+    margin-left: 8px;
+    font-size: 16px;
+}
+
+/* Highlight the current quiz question on hover */
+.quiz-question:hover {
+    background-color: #f0f8ff; /* Optional background color change on hover */
+}
+
+#submit-quiz-button, #attempt-again-button {
+    background-color: #6a0dad; /* Purple color */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 10px 5px; /* Adds space between buttons */
+    display: inline-block; /* To keep them inline */
+}
+
+#submit-quiz-button:hover, #attempt-again-button:hover {
+    background-color: #5a00bd; /* Darker shade on hover */
+}
+
+#submit-quiz-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#attempt-again-button {
+    display: none; /* Hidden initially */
+}

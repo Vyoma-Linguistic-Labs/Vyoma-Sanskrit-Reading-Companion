@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ display_name }} - Contents</title> <!-- Updated title format -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="sticky-bar">
+        <!-- Home Button Icon and Menu Icon in the same container -->
+        <div class="home-menu-container">
+            <div class="home-icon">
+                <a href="/" title="Home">🏠</a>
+            </div>
+
+            <!-- Menu Icon next to Home Icon -->
+            <div id="menu-button" class="menu-icon" onclick="openNav()">&#9776; Menu</div>
+        </div>
+        
+        <!-- Side Drawer Menu -->
+        <div id="side-drawer" class="side-drawer">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <ul id="menu-list"></ul> <!-- Menu populated from menu.csv -->
+        </div>
+        
+        <!-- Heading Moved to Sticky Bar -->
+        <div class="sticky-bar-heading">
+            <h4>Vyoma Sanskrit Reading Companion - Chittoor Exams</h4>
+        </div>
+    </div>
+
+    <!-- Main content container -->
+    <div class="main-content">
+        <div class="content-container">
+            <h1>{{ display_name }}</h1> <!-- Display Name from texts.csv -->
+            <h3>{{ subtitle }}</h3> <!-- Subtitle from texts.csv -->
+
+            <h2>Table of Contents</h2> <!-- Updated heading -->
+
+            <!-- List of essays -->
+            <ul class="essay-list">
+                {% for essay in essays %}
+                    <li><a href="/csv/{{ text_name }}/components/{{ essay['Essay Filename'] }}">{{ essay['Essay Name'] }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <img src="/static/logowhite.png" alt="Vyoma Logo" class="footer-logo">
+        Powered by Vyoma Linguistic Labs Foundation | 
+        <a href="https://www.sanskritfromhome.org" target="_blank" style="color: white;">&nbspwww.sanskritfromhome.org&nbsp</a> | 
+        <a href="https://www.vyoma.org" target="_blank" style="color: white;">&nbspwww.vyoma.org&nbsp</a> | 
+        <a href="https://www.digitalsanskritguru.com" target="_blank" style="color: white;">&nbspwww.digitalsanskritguru.com&nbsp</a>
+    </footer>
+
+<!-- JavaScript for Side Drawer Menu -->
+<script>
+    // Function to open the side drawer
+    function openNav() {
+        document.getElementById('side-drawer').style.width = "250px";
+        document.addEventListener('click', closeOnClickOutside); // Add the event listener when the menu opens
+    }
+
+    // Function to close the side drawer
+    function closeNav() {
+        document.getElementById('side-drawer').style.width = "0";
+        document.removeEventListener('click', closeOnClickOutside); // Remove the event listener when the menu closes
+    }
+
+    // Close the menu when clicking outside of it
+    function closeOnClickOutside(event) {
+        const drawer = document.getElementById('side-drawer');
+        const menuButton = document.getElementById('menu-button'); // Ensure clicking the button itself doesn't close the menu
+        if (!drawer.contains(event.target) && !menuButton.contains(event.target)) {
+            closeNav(); // Close the drawer if clicked outside
+        }
+    }
+
+    // Fetch menu.csv data dynamically from the server
+    const menuItems = {{ menu_items | tojson }};
+    const menuList = document.getElementById('menu-list');
+
+    // Populate the side drawer menu
+    menuItems.forEach(item => {
+        const mainMenuItem = document.createElement('li');
+        mainMenuItem.textContent = item['Main Menu'];
+
+        const subMenuList = document.createElement('ul'); // Sub-menu for second level
+
+        const subMenuArray = item['Sub Menu'].split(';');
+        const subMenuLinksArray = item['Sub Menu Link'].split(';');
+
+        subMenuArray.forEach((subItem, index) => {
+            const subMenuItem = document.createElement('li');
+            const subMenuLink = document.createElement('a');
+            subMenuLink.href = subMenuLinksArray[index]; // Link to the submenu
+            subMenuLink.textContent = subItem;
+
+            subMenuItem.appendChild(subMenuLink);
+            subMenuList.appendChild(subMenuItem);
+        });
+
+        if (subMenuArray.length > 0) {
+            mainMenuItem.appendChild(subMenuList); // Add sub-menu to main menu item only if sub-menu exists
+        }
+        menuList.appendChild(mainMenuItem); // Add main menu item to the list
+    });
+
+    // Sub-menu visibility on hover and click/touch
+    const allMainMenuItems = document.querySelectorAll("#menu-list > li");
+    allMainMenuItems.forEach(mainMenu => {
+        const subMenu = mainMenu.querySelector("ul"); // Check for submenu
+        if (subMenu) {
+            subMenu.style.display = "none"; // Ensure it's hidden initially
+
+            // Hover-based visibility for desktop
+            mainMenu.onmouseover = function() {
+                subMenu.style.display = "block";
+            };
+            mainMenu.onmouseout = function() {
+                subMenu.style.display = "none";
+            };
+
+            // Click/touch support for mobile/touch devices
+            mainMenu.addEventListener('touchstart', function(event) {
+                event.preventDefault(); // Prevent default scrolling behavior
+                // Toggle the visibility of the sub-menu
+                if (subMenu.style.display === "block") {
+                    subMenu.style.display = "none";
+                } else {
+                    subMenu.style.display = "block";
+                }
+            });
+
+            mainMenu.addEventListener('click', function(event) {
+                // Close other open sub-menus before opening the clicked one
+                allMainMenuItems.forEach(menu => {
+                    if (menu !== mainMenu) {
+                        const otherSubMenu = menu.querySelector("ul");
+                        if (otherSubMenu) {
+                            otherSubMenu.style.display = "none";
+                        }
+                    }
+                });
+
+                // Toggle the visibility of the sub-menu
+                if (subMenu.style.display === "block") {
+                    subMenu.style.display = "none";
+                } else {
+                    subMenu.style.display = "block";
+                }
+            });
+        }
+    });
+</script>
+	
+		<script>
+    // Adjust the padding of the main content based on the height of the sticky bar
+    function adjustContentPadding() {
+        const stickyBar = document.querySelector('.sticky-bar');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (stickyBar && mainContent) {
+            const stickyHeight = stickyBar.offsetHeight;
+            mainContent.style.paddingTop = `${stickyHeight + 20}px`; // Add some extra space
+        }
+    }
+
+    // Call the function when the window is resized or on initial load
+    window.addEventListener('resize', adjustContentPadding);
+    window.addEventListener('load', adjustContentPadding);
+</script>
+
+</body>
+</html>
